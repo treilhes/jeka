@@ -332,7 +332,7 @@ public final class JkEclipseClasspathGenerator {
             } else {
                 JkDependencyNode.FileNodeInfo fileNodeInfo = (JkDependencyNode.FileNodeInfo) node.nodeInfo();
                 if (fileNodeInfo.isComputed()) {
-                    JkComputedDependency computedDependency = fileNodeInfo.computationOrigin();
+                    JkComputedDependency computedDependency = (JkComputedDependency) fileNodeInfo.computationOrigin();
                     File ideprojectBaseDir = computedDependency.ideProjectBaseDir();
                     if (ideprojectBaseDir != null) {
                         if (!allPaths.contains(ideprojectBaseDir.getAbsolutePath())) {

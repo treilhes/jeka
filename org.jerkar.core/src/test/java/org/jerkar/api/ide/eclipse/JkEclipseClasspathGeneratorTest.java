@@ -20,25 +20,38 @@ public class JkEclipseClasspathGeneratorTest {
     public void generate() throws Exception {
         File top = dir("sample-multi-scriptless.zip");
 
+        File base = new File(top, "base");
+        JkJavaProject baseProject = JkJavaProject.of(base);
+        JkJavaProjectStructure structure = baseProject.structure();
+        structure.relocaliseOutputDir("build/output");
+        structure.setEditedSources("src");
+        structure.setEditedResources("res");
+        JkEclipseClasspathGenerator baseGenerator = new JkEclipseClasspathGenerator(structure);
+
+        String result0 = baseGenerator.generate();
+        System.out.println(result0);
+
         File core = new File(top, "core");
         JkJavaProject coreProject = JkJavaProject.of(core);
-        JkJavaProjectStructure structure = coreProject.structure();
+        structure = coreProject.structure();
         structure.relocaliseOutputDir("build/output");
         structure.setEditedSources("src");
         structure.setEditedResources("res").setEditedTestResources("res-test");
         structure.setTestSources("test");
+        JkDependencies deps = JkDependencies.builder()
+                .on(baseProject.asProjectDependency()).build();
         JkEclipseClasspathGenerator coreGenerator = new JkEclipseClasspathGenerator(structure);
-        String result = coreGenerator.generate();
+        coreGenerator.setDependencyResolver(JkDependencyResolver.managed(JkRepos.mavenCentral(), deps));
         String result1 = coreGenerator.generate();
         System.out.println(result1);
 
 
         File desktop = new File(top, "desktop");
         JkJavaProjectStructure desktopStructure = structure.clone().relocaliseBaseDir(desktop);
-        JkDependencies deps = JkDependencies.builder()
+        JkDependencies deps2 = JkDependencies.builder()
                 .on(coreProject.asProjectDependency()).build();
         JkEclipseClasspathGenerator desktopGenerator = new JkEclipseClasspathGenerator(desktopStructure);
-        desktopGenerator.setDependencyResolver(JkDependencyResolver.managed(JkRepos.mavenCentral(), deps));
+        desktopGenerator.setDependencyResolver(JkDependencyResolver.managed(JkRepos.mavenCentral(), deps2));
         String result2 = desktopGenerator.generate();
         System.out.println(result2);
 

@@ -40,4 +40,9 @@ public class JkJavaProjectDependency extends JkComputedDependency  {
         }
 
     }
+
+    @Override
+    public String toString() {
+        return project.structure().baseDir().getName();
+    }
 }

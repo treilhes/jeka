@@ -419,21 +419,14 @@ public class JkDependencyNode implements Serializable {
         private static final long serialVersionUID = 1L;
 
         public static FileNodeInfo of(Set<JkScope> scopes, JkDependency.JkFileDependency dependency) {
-            if (dependency instanceof JkComputedDependency) {
-                JkComputedDependency computedDependency = (JkComputedDependency) dependency;
-                return new FileNodeInfo(computedDependency.files(), scopes, computedDependency);
-            }
-            return new FileNodeInfo(((JkFileSystemDependency) dependency).files(), scopes, null);
+            return new FileNodeInfo(scopes, dependency);
         }
-
-        private final List<File> files;
 
         private final Set<JkScope> scopes;
 
-        private final JkComputedDependency computationOrigin;
+        private final JkDependency.JkFileDependency computationOrigin;
 
-        private FileNodeInfo(List<File> files, Set<JkScope> scopes, JkComputedDependency origin) {
-            this.files = Collections.unmodifiableList(new LinkedList<File>(files));
+        private FileNodeInfo(Set<JkScope> scopes, JkDependency.JkFileDependency origin) {
             this.scopes = Collections.unmodifiableSet(new HashSet<JkScope>(scopes));
             this.computationOrigin = origin;
         }
@@ -442,19 +435,19 @@ public class JkDependencyNode implements Serializable {
          * Returns <code>true</code> if this node come from a computed dependency
          */
         public boolean isComputed() {
-            return computationOrigin != null;
+            return computationOrigin instanceof JkComputedDependency;
         }
 
         /**
          * If this node comes from a computed dependency, it returns computed dependency in question.
          */
-        public JkComputedDependency computationOrigin() {
+        public JkDependency.JkFileDependency computationOrigin() {
             return computationOrigin;
         }
 
         @Override
         public List<File> files() {
-            return files;
+            return computationOrigin.files();
         }
 
         @Override
@@ -464,7 +457,7 @@ public class JkDependencyNode implements Serializable {
 
         @Override
         public String toString() {
-            return files + (isComputed() ? " (computed)" : "");
+            return computationOrigin.toString();
         }
     }
 
